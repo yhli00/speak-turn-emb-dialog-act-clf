@@ -4,6 +4,7 @@ import os
 import numpy as np
 import pandas as pd
 import pickle
+from tqdm import tqdm
 
 ### Dialogue act label encoding, SWDA
 # {'qw^d': 0, '^2': 1, 'b^m': 2, 'qy^d': 3, '^h': 4, 'bk': 5, 'b': 6, 'fa': 7, 'sd': 8, 'fo_o_fw_"_by_bc': 9,
@@ -72,7 +73,7 @@ class DialogueActData(Dataset):
             topic_labels_ = []
 
             conv_ids = df['conv_id'].unique()
-            for conv_id in conv_ids:
+            for conv_id in tqdm(conv_ids, ncols=80, desc='processing data'):
                 mask_conv = df['conv_id'] == conv_id
                 df_conv = df[mask_conv]
                 input_ids = input_ids_all[mask_conv]
@@ -92,7 +93,7 @@ class DialogueActData(Dataset):
                     chunk_topic_labels = topic_labels[idx1: idx2].tolist()
                     chunk_len = idx2 - idx1
 
-                    if idx2 - idx1 < chunk_size:
+                    if idx2 - idx1 < chunk_size:  # pad成chunk_size
                         length1 = idx2 - idx1
                         length2 = chunk_size - length1
                         encodings_pad = [[0] * len(input_ids_all[0])] * length2
@@ -125,12 +126,12 @@ class DialogueActData(Dataset):
 
     def __getitem__(self, index):
         item = {
-            'input_ids': torch.tensor(self.input_ids[index]),
-            'attention_mask': torch.tensor(self.attention_mask[index]),
-            'labels': torch.tensor(self.labels[index]),
-            'chunk_lens': torch.tensor(self.chunk_lens[index]),
-            'speaker_ids': torch.tensor(self.speaker_ids[index], dtype=torch.long),
-            'topic_labels': torch.tensor(self.topic_labels[index], dtype=torch.long)
+            'input_ids': torch.tensor(self.input_ids[index]),  # [B, chunk_size, max_len]
+            'attention_mask': torch.tensor(self.attention_mask[index]),  # [B, chunk_size, max_len]
+            'labels': torch.tensor(self.labels[index]),  # [B, chunk_size]
+            'chunk_lens': torch.tensor(self.chunk_lens[index]),  # [B]
+            'speaker_ids': torch.tensor(self.speaker_ids[index], dtype=torch.long),  # [B, chunk_size]
+            'topic_labels': torch.tensor(self.topic_labels[index], dtype=torch.long)  # [B, chunk_size]
         }
         return item
 
@@ -141,3 +142,15 @@ class DialogueActData(Dataset):
 def data_loader(corpus, phase, batch_size, chunk_size=0, shuffle=False):
     dataset = DialogueActData(corpus, phase, chunk_size=chunk_size)
     return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
+
+
+if __name__ == '__main__':
+    dataset = DialogueActData(corpus='swda', phase='train', chunk_size=128)
+    dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
+    for batch in dataloader:
+        print(batch['input_ids'].shape)
+        print(batch['labels'].shape)
+        print(batch['chunk_lens'].shape)
+        print(batch['speaker_ids'].shape)
+        print(batch['topic_labels'].shape)
+        break

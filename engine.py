@@ -47,7 +47,7 @@ class Engine:
                         emb_batch=args.emb_batch,
                         )
 
-        model = nn.DataParallel(model)
+        # model = nn.DataParallel(model)
         model.to(device)
         params = model.parameters()
 
@@ -73,7 +73,8 @@ class Engine:
         for epoch in range(self.args.epochs):
             print(f"{'*' * 20}Epoch: {epoch + 1}{'*' * 20}")
             loss = self.train_epoch()
-            acc = self.eval()
+            with torch.no_grad():
+                acc = self.eval()
             test_acc = self.eval(False)
             if acc > best_epoch_acc:
                 best_epoch = epoch
@@ -91,7 +92,8 @@ class Engine:
         print('Saving the best checkpoint....')
         torch.save(best_state_dict, f"ckp/model_{self.args.corpus}.pt")
         self.model.load_state_dict(best_state_dict)
-        acc = self.eval(False)
+        with torch.no_grad():
+            acc = self.eval(False)
         print(f'Test Acc: {acc:.3f}')
 
     def train_epoch(self):
@@ -157,7 +159,8 @@ class Engine:
         self.model.load_state_dict(torch.load('ckp/model.pt'))
 
         # make predictions
-        self.eval(val=False, inference=True)
+        with torch.no_grad():
+            self.eval(val=False, inference=True)
 
 
 if __name__ == '__main__':

@@ -12,8 +12,8 @@ if __name__ == '__main__':
     batch_size = 2
     batch_size_val = 2 # don't change this number
     emb_batch = 0
-    epochs = 100    # default 100
-    gpu = ['0,1', '', '0,1,2,3', '0,1,2,3,4,5,6,7'][0]   # default 0,1
+    epochs = 2    # default 100
+    gpu = 0   # default 0,1
     lr = 1e-4   # default 1e-4
     nlayer = 2  # default 1
     chunk_size = 196
@@ -42,10 +42,7 @@ if __name__ == '__main__':
     if dropout != 0.5:
         file_name = file_name[:-4] + f'_dropout={dropout}.txt'
 
-    if not gpu:
-        n_gpu = 0
-    else:
-        n_gpu = len(gpu.split(','))
+    n_gpu = 1
     if n_gpu != 2:
         file_name = file_name[:-4] + f'_ngpu={n_gpu}.txt'
 
