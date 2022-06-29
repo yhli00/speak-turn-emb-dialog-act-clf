@@ -1,0 +1,15 @@
+corpus: 'mrda'
+batch_size: 3
+batch_size_val: 2
+emb_batch: 256
+epochs: 10000
+lr: 1e-4
+nlayer: 1  # GRU num_layers
+chunk_size: 350
+dropout: 0.5
+nfinetune: 2  # fine-tune roberta层数
+nclass: 5
+speaker_info: 'emb_cls'
+topic_info: 'none'
+mode: 'train'  # train 或 inference
+seed: 42
