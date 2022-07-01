@@ -38,7 +38,7 @@ def init_logger(log_filename):
     )
 
 
-class Engine:
+class Trainer:
     def __init__(self, args):
         device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
         os.makedirs('ckp', exist_ok=True)
@@ -142,8 +142,7 @@ class Engine:
             speaker_ids = batch['speaker_ids'].to(self.device)
             topic_labels = batch['topic_labels'].to(self.device)
             chunk_attention_mask = batch['chunk_attention_mask'].to(self.device)
-            outputs = self.model(input_ids, attention_mask, chunk_lens, speaker_ids,
-                                 topic_labels, chunk_attention_mask)
+            outputs = self.model(input_ids, attention_mask, chunk_lens, speaker_ids, topic_labels)
             labels = labels.reshape(-1)
             loss_act = self.criterion(outputs, labels)
             loss = loss_act
@@ -170,7 +169,7 @@ class Engine:
                 speaker_ids = batch['speaker_ids'].to(self.device)
                 topic_labels = batch['topic_labels'].to(self.device)
                 chunk_attention_mask = batch['chunk_attention_mask'].to(self.device)
-                outputs = self.model(input_ids, attention_mask, chunk_lens, speaker_ids, topic_labels, chunk_attention_mask)
+                outputs = self.model(input_ids, attention_mask, chunk_lens, speaker_ids, topic_labels)
                 y_pred.append(outputs.detach().to('cpu').argmax(dim=1).numpy())
                 labels = labels.reshape(-1)
                 y_true.append(labels.detach().to('cpu').numpy())
@@ -230,8 +229,8 @@ if __name__ == '__main__':
     args.log_filename = os.path.join(config_path, args.corpus + '.log')
 
     logger.info(f'{args}')
-    engine = Engine(args)
+    trainer = Trainer(args)
     if args.mode == 'train':
-        engine.train()
+        trainer.train()
     else:
-        engine.inference()
+        trainer.inference()

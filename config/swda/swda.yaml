@@ -1,17 +1,17 @@
 corpus: 'swda'
-batch_size: 6
+batch_size: 2
 batch_size_val: 2
 emb_batch: 0
-epochs: 1000
+epochs: 15
 lr: 1e-4
-nlayer: 2  # GRU num_layers
-chunk_size: 128
+nlayer: 1  # GRU num_layers
+chunk_size: 160
 dropout: 0.5
-nfinetune: 2  # fine-tune roberta层数
+nfinetune: 1  # fine-tune roberta层数
 nclass: 43
 speaker_info: 'emb_cls'
 topic_info: 'none'
 mode: 'train'  # train 或 inference
 seed: 42
-warmup_rate: 0.0
-max_length: 96
+warmup_rate: 0.2
+max_length: 0
